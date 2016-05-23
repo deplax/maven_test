@@ -1,29 +1,42 @@
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.Properties;
 
 
 public class testGetProp {
 
     @Test
-    public void getproperties(){
+    public void getproperties() {
+
         Properties prop = new Properties();
         String propFileName = "src/main/conf/conf_dev.properties";
-        propFileName = "./conf_dev.properties";
-        InputStream input = null;
+        propFileName = "conf_dev.properties";
+//        propFileName = "target/classes/conf_dev.properties";
 
         try {
-            input = new FileInputStream(propFileName);
-            prop.load(input);
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            InputStream input = loader.getResourceAsStream(propFileName);
+//            input = new FileInputStream(propFileName);
+
+            if (input != null) {
+                prop.load(input);
+            } else {
+                Assert.assertFalse(true);
+                throw new FileNotFoundException("property file " + propFileName + " not found in the classpath");
+            }
+
             String dev = prop.getProperty("devconfig");
             System.out.println(dev);
+            Assert.assertTrue(true);
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 }
